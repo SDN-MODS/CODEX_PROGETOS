@@ -7,10 +7,10 @@ do DayZ 1.30 e `CodeLock` do mod Code Lock. Os tipos são independentes.
 
 1. Faça uma cópia do arquivo original de `RaG_BaseBuilding`.
 2. Em `scripts/4_World/rag_basebuilding/actions/vanilla/actiondismantlepart.c`,
-   renomeie o auxiliar do mod de `GetCodeLock()` para `GetRaGCodeLock()`.
-3. Atualize a declaração do auxiliar e as chamadas internas do RaG nesse arquivo.
-4. Não altere o acessador vanilla `DigitalCodeLock` e não use cast entre os tipos.
-5. Compile no Workbench com DayZ 1.30, Code Lock, RaG BaseBuilding e este mod.
+   substitua a chamada `CodeLock codelock = fence.GetCodeLock();` pela busca
+   explícita `CodeLock.Cast(fence.FindAttachmentBySlotName("Att_CodeLock"))`.
+3. Não altere o acessador vanilla `DigitalCodeLock` e não use cast entre os tipos.
+4. Compile no Workbench com DayZ 1.30, Code Lock, RaG BaseBuilding e este mod.
 
 O arquivo `patches/actiondismantlepart.c` mostra a alteração mínima. O código
 RaG original não está neste repositório, então o mod não inventa uma assinatura

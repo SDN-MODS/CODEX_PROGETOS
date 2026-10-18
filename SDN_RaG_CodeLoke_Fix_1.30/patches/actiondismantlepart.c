@@ -1,18 +1,23 @@
 /*
- * Apply this minimal source patch to:
- * RaG_BaseBuilding/scripts/4_World/rag_basebuilding/actions/vanilla/actiondismantlepart.c
+ * Source fix for:
+ * RaG_BaseBuilding/Scripts/4_World/RaG_BaseBuilding/Actions/Vanilla/ActionDismantlePart.c
  *
- * DayZ 1.30 introduced/uses DigitalCodeLock in the vanilla action hierarchy.
- * Code Lock's helper returns CodeLock. They are unrelated types. Rename the
- * Code Lock helper at the call site; do not cast either type to the other.
+ * DayZ 1.30's Fence.GetCodeLock() returns DigitalCodeLock. The Code Lock
+ * mod also used the same method name for its unrelated CodeLock entity. A
+ * CodeLock cannot be assigned from Fence.GetCodeLock(). Resolve the Code
+ * Lock attachment explicitly instead of calling the ambiguous accessor.
  */
 
-// BEFORE (the conflicting call in the RaG file):
-// CodeLock codeLock = GetCodeLock();
+#ifdef CodeLock
+if (compName == "simple_door" || compName == "simple_door_metal")
+{
+    Fence fence = Fence.Cast(action_data.m_Target.GetObject());
+    CodeLock codelock = null;
 
-// AFTER:
-CodeLock codeLock = GetRaGCodeLock();
+    if (fence)
+        codelock = CodeLock.Cast(fence.FindAttachmentBySlotName("Att_CodeLock"));
 
-// If the helper is declared in the same RaG class, rename its declaration too:
-// CodeLock GetCodeLock()           -> CodeLock GetRaGCodeLock()
-// and update every RaG-only call in this action file.
+    if (codelock)
+        codelock.UnlockServer(action_data.m_Player, fence);
+}
+#endif
