@@ -1,10 +1,20 @@
 # SDN RaG CodeLoke Fix 1.30
 
-Correção de compatibilidade para o erro:
+PBO independente de compatibilidade para DayZ 1.30. Ele adiciona
+`Fence.SDN_GetCodeLockAttachment()`, que recupera o `CodeLock` do attachment
+`Att_CodeLock` sem conflitar com o acessador vanilla `Fence.GetCodeLock()`, cujo
+retorno é `DigitalCodeLock`.
 
-`Types 'DigitalCodeLock' and 'CodeLock' are unrelated`
+## Limitação necessária
 
-A correção separa os nomes: `DigitalCodeLock` continua sendo o tipo vanilla do
-DayZ 1.30 e o auxiliar do o `CodeLock` é obtido diretamente do attachment `Att_CodeLock`, sem chamar
-`Fence.GetCodeLock()`. Consulte `patches/actiondismantlepart.c` e
-`docs/INSTALACAO.md`.
+O erro original acontece durante a compilação do fonte do RaG:
+
+```c
+CodeLock codelock = fence.GetCodeLock();
+```
+
+Um PBO separado não pode substituir uma linha de outro PBO antes que o
+compilador a processe. Portanto, este mod é carregável independentemente, mas o
+RaG precisa receber a atualização do autor ou uma única alteração de fonte para
+usar `fence.SDN_GetCodeLockAttachment()`. Não é necessário empacotar RaG nem
+Code Lock dentro deste mod.

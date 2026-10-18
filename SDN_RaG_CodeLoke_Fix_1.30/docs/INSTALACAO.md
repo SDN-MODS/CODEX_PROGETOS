@@ -1,24 +1,30 @@
 # SDN RaG CodeLoke Fix 1.30
 
-Este é um patch de compatibilidade para o conflito entre `DigitalCodeLock`
-do DayZ 1.30 e `CodeLock` do mod Code Lock. Os tipos são independentes.
+Este PBO é independente e não contém RaG BaseBuilding nem Code Lock.
 
-## Aplicação
+## O que ele corrige
 
-1. Faça uma cópia do arquivo original de `RaG_BaseBuilding`.
-2. Em `scripts/4_World/rag_basebuilding/actions/vanilla/actiondismantlepart.c`,
-   substitua a chamada `CodeLock codelock = fence.GetCodeLock();` pela busca
-   explícita `CodeLock.Cast(fence.FindAttachmentBySlotName("Att_CodeLock"))`.
-3. Não altere o acessador vanilla `DigitalCodeLock` e não use cast entre os tipos.
-4. Compile no Workbench com DayZ 1.30, Code Lock, RaG BaseBuilding e este mod.
+Em DayZ 1.30, `Fence.GetCodeLock()` é o acessador vanilla e retorna
+`DigitalCodeLock`. O Code Lock usa a entidade `CodeLock`. O mod fornece um
+acessador separado:
 
-O arquivo `patches/actiondismantlepart.c` mostra a alteração mínima. O código
-RaG original não está neste repositório, então o mod não inventa uma assinatura
-de classe ou método que possa divergir da versão instalada.
+```c
+CodeLock codelock = fence.SDN_GetCodeLockAttachment();
+```
 
-## Carregamento
+Esse método lê o attachment `Att_CodeLock` e não altera `DigitalCodeLock`.
 
-Use `-mod=@CodeLock;@RaG_BaseBuilding;@SDN_RaG_CodeLoke_Fix_1.30` conforme a
-ordem suportada pelo servidor. O patch deve ser aplicado ao fonte do RaG antes
-do empacotamento; apenas carregar um PBO adicional não corrige um erro de
-compilação no fonte original.
+## Instalação
+
+1. Compile este PBO como `@SDN_RaG_CodeLoke_Fix_1.30`.
+2. Carregue-o depois de Code Lock e RaG BaseBuilding:
+   `-mod=@CodeLock;@RaG_BaseBuilding;@SDN_RaG_CodeLoke_Fix_1.30`.
+3. O RaG precisa usar `SDN_GetCodeLockAttachment()` na ação de desmontagem.
+
+## Restrição do compilador
+
+Se o RaG distribuído ainda contém `CodeLock codelock = fence.GetCodeLock();`,
+o erro ocorre antes do carregamento de qualquer PBO e este mod não consegue
+interceptar ou substituir essa linha. Nesse caso é necessária uma atualização
+do RaG/Code Lock pelo autor ou um patch de uma linha no fonte do RaG; os
+arquivos originais não precisam ser empacotados neste projeto.

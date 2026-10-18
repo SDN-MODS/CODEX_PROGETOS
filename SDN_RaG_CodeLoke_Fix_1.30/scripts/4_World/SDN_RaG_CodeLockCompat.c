@@ -1,18 +1,15 @@
 /**
- * SDN RaG CodeLock Fix 1.30
+ * Independent compatibility API for servers that load RaG BaseBuilding and
+ * Code Lock together on DayZ 1.30.
  *
- * Compatibility namespace for RaG BaseBuilding. DayZ 1.30 exposes the
- * vanilla DigitalCodeLock type; the Code Lock mod exposes CodeLock. They
- * are unrelated classes and must never share a variable or method name.
- *
- * The RaG source patch in patches/actiondismantlepart.c renames its helper
- * call to GetRaGCodeLock(). This file intentionally contains no replacement
- * DigitalCodeLock implementation: the game accessor remains untouched.
+ * This does not override Fence.GetCodeLock(): in 1.30 that vanilla accessor
+ * returns DigitalCodeLock. CodeLock is retrieved from its attachment slot
+ * through a separate name, so no unrelated types are mixed.
  */
-class SDN_RaG_CodeLockCompat
+modded class Fence
 {
-    static bool IsCompatible()
+    CodeLock SDN_GetCodeLockAttachment()
     {
-        return true;
+        return CodeLock.Cast(FindAttachmentBySlotName("Att_CodeLock"));
     }
 };
